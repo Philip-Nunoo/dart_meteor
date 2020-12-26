@@ -60,6 +60,9 @@ class MeteorClient {
   BehaviorSubject<String> _userIdSubject = BehaviorSubject();
   Stream<String> _userIdStream;
 
+  BehaviorSubject<String> _userTokenSubject = BehaviorSubject();
+  Stream<String> _userTokenStream;
+
   BehaviorSubject<Map<String, dynamic>> _userSubject = BehaviorSubject();
   Stream<Map<String, dynamic>> _userStream;
 
@@ -96,6 +99,7 @@ class MeteorClient {
 
     _loggingInStream = _loggingInSubject.stream;
     _userIdStream = _userIdSubject.stream;
+    _userTokenStream = _userTokenSubject.stream;
     _userStream = _userSubject.stream;
 
     prepareCollection('users');
@@ -319,8 +323,16 @@ class MeteorClient {
     return _userIdStream;
   }
 
+  Stream<String> userToken() {
+    return _userTokenStream;
+  }
+
   String userIdCurrentValue() {
     return _userIdSubject.value;
+  }
+
+  String userTokenCurrentValue() {
+    return _userTokenSubject.value;
   }
 
   /// A Map containing user documents.
@@ -342,6 +354,7 @@ class MeteorClient {
       _loggingIn = false;
       _loggingInSubject.add(_loggingIn);
       _userIdSubject.add(_userId);
+      _userTokenSubject.add(_token);
       completer.complete();
     }).catchError((error) {
       _userId = null;
@@ -350,6 +363,7 @@ class MeteorClient {
       _loggingIn = false;
       _loggingInSubject.add(_loggingIn);
       _userIdSubject.add(_userId);
+      _userTokenSubject.add(_token);
       connection.disconnect();
       Future.delayed(Duration(seconds: 2), () {
         connection.reconnect();
@@ -370,6 +384,7 @@ class MeteorClient {
       _loggingIn = false;
       _loggingInSubject.add(_loggingIn);
       _userIdSubject.add(_userId);
+      _userTokenSubject.add(_token);
       return call('removeOtherTokens', []);
     }).catchError((error) {
       completer.completeError(error);
@@ -419,6 +434,7 @@ class MeteorClient {
       _loggingIn = false;
       _loggingInSubject.add(_loggingIn);
       _userIdSubject.add(_userId);
+      _userTokenSubject.add(_token);
       completer.complete(MeteorClientLoginResult(
         userId: _userId,
         token: _token,
@@ -432,6 +448,7 @@ class MeteorClient {
         _loggingIn = false;
         _loggingInSubject.add(_loggingIn);
         _userIdSubject.add(_userId);
+        _userTokenSubject.add(_token);
         completer.completeError(error);
       });
     });
@@ -475,6 +492,7 @@ class MeteorClient {
         _loggingIn = false;
         _loggingInSubject.add(_loggingIn);
         _userIdSubject.add(_userId);
+        _userTokenSubject.add(_token);
         completer.complete(MeteorClientLoginResult(
           userId: _userId,
           token: _token,
@@ -487,6 +505,7 @@ class MeteorClient {
         _loggingIn = false;
         _loggingInSubject.add(_loggingIn);
         _userIdSubject.add(_userId);
+        _userTokenSubject.add(_token);
         completer.completeError(error);
       });
     } else {
