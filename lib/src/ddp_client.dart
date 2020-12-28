@@ -93,11 +93,13 @@ class DdpClient {
   Map<String, SubscriptionCallback> _subscriptions = {};
   Map<String, SubscriptionHandler> _subscriptionHandlers = {};
   bool _isTryToReconnect = true;
+  bool _isAlwaysRetry = false;
   Timer _scheduleReconnectTimer;
 
-  DdpClient({String url, int maxRetryCount = 20}) {
+  DdpClient({String url, int maxRetryCount = 20, bool isAlwaysRetry = false}) {
     _url = url;
     _maxRetryCount = maxRetryCount;
+    _isAlwaysRetry = isAlwaysRetry;
     _connectionStatus = DdpConnectionStatus(
       connected: false,
       status: DdpConnectionStatusValues.waiting,
@@ -236,11 +238,15 @@ class DdpClient {
     if (_connectionStatus.status == DdpConnectionStatusValues.offline ||
         _connectionStatus.status == DdpConnectionStatusValues.failed) {
       _connectionStatus.retryCount++;
-      if (_connectionStatus.retryCount <= _maxRetryCount) {
+      if (_connectionStatus.retryCount <= _maxRetryCount || _isAlwaysRetry) {
+        int retryCalc = _connectionStatus.retryCount;
+        if (_isAlwaysRetry) {
+          retryCalc = 2;
+        }
         _connectionStatus.connected = false;
         _connectionStatus.status = DdpConnectionStatusValues.waiting;
         _connectionStatus.retryTime =
-            Duration(seconds: min(5 * (_connectionStatus.retryCount - 1), 30));
+            Duration(seconds: min(5 * (retryCalc - 1), 30));
         _connectionStatus.reason = null;
         _statusStreamController.sink.add(_connectionStatus);
         printDebug('Retry to connect in ${_connectionStatus.retryTime}');

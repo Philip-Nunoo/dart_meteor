@@ -78,13 +78,13 @@ class MeteorClient {
   Map<String, BehaviorSubject<Map<String, dynamic>>> _collectionsSubject = {};
   Map<String, Stream<Map<String, dynamic>>> collections = {};
 
-  MeteorClient.connect({String url}) {
+  MeteorClient.connect({String url, bool isAlwaysRetry}) {
     url = url.replaceFirst(RegExp(r'^http'), 'ws');
     if (!url.endsWith('websocket')) {
       url = url.replaceFirst(RegExp(r'/$'), '') + '/websocket';
     }
     print('connecting to $url');
-    connection = DdpClient(url: url);
+    connection = DdpClient(url: url, isAlwaysRetry: isAlwaysRetry);
 
     connection.status().listen((ddpStatus) {
       _statusSubject.add(ddpStatus);
